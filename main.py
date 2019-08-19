@@ -28,12 +28,19 @@ class Modes:
 		3: (1, 3, 0, 2)
 	}
 
+	complement = {
+		0: 1,
+		1: 0,
+		2: 3,
+		3: 2
+	}
+
 
 verticies = [
-	(-1.0, -1.0,   0.0, 0.0,   1.0, 0.0, 0.0),
-	(-1.0,  1.0,   0.0, 1.0,   0.0, 1.0, 0.0),
-	( 1.0, -1.0,   1.0, 0.0,   0.0, 0.0, 1.0),
-	( 1.0,  1.0,   1.0, 1.0,   1.0, 0.0, 0.0)
+	(-1.0, -1.0,   0.0, 0.0),
+	(-1.0,  1.0,   0.0, 1.0),
+	( 1.0, -1.0,   1.0, 0.0),
+	( 1.0,  1.0,   1.0, 1.0)
 ]
 
 tris = [
@@ -88,7 +95,6 @@ iBuffer.bind()
 layout = GLLayout.Layout()
 layout.addAttribF(2)
 layout.addAttribF(2)
-layout.addAttribF(3)
 layout.bind(vBuffer)
 
 
@@ -99,33 +105,48 @@ glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0)
 
 
 
-u_color = glGetUniformLocation(shaderprogramID, "u_color")
 u_pos = glGetUniformLocation(shaderprogramID, "u_pos")
 u_scale = glGetUniformLocation(shaderprogramID, "u_scale")
 u_mode = glGetUniformLocation(shaderprogramID, "u_mode")
+u_quadPos = glGetUniformLocation(shaderprogramID, "u_quadPos")
+u_quadScale = glGetUniformLocation(shaderprogramID, "u_quadScale")
 
 
 
 glUseProgram(shaderprogramID)
-glUniform3f(u_color, 1.0, 0.0, 0.0)
 glUniform4f(u_pos, 0.0, 0.0, 0.0, 0.0)
 glUniform1f(u_scale, 3.0)
 glUniform1i(u_mode, 0)
+glUniform2f(u_quadPos, 0.0, 0.0)
+glUniform2f(u_quadScale, 1.0, 1.0)
 glBindVertexArray(VAO)
 
 # draw mesh
-def draw(pos, scale, mode):
+def draw(pos, scale, mode, renderComplement):
 	glUniform4f(u_pos, pos[0], pos[1], pos[2], pos[3])
-	glUniform1f(u_scale, scale)
+	glUniform1f(u_scale, scale[mode])
+
+	glUniform2f(u_quadPos, 0.0, 0.0)
+	glUniform2f(u_quadScale, 1.0, 1.0)
 	glUniform1i(u_mode, mode)
+
 	glDrawElements(GL_TRIANGLES, len(tris) * 3, GL_UNSIGNED_INT, None)
+
+	if renderComplement:
+		glUniform2f(u_quadPos, 0.75, 0.75)
+		glUniform2f(u_quadScale, 0.25, 0.25)
+		glUniform1i(u_mode, Modes.complement[mode])
+		glUniform1f(u_scale, scale[Modes.complement[mode]])
+
+		glDrawElements(GL_TRIANGLES, len(tris) * 3, GL_UNSIGNED_INT, None)
 
 	pygame.display.flip()
 
 
-pos = [0.6991911724614522, -0.2917956201051549, 0.0, 0.0]
-scale = 3.0
+pos = [0.0, 0.0, 0.0, 0.0]
+scale = [3.0, 3.0, 3.0, 3.0]
 mode = 0
+renderComplement = False
 
 # keep running
 isRunning = True
@@ -138,31 +159,41 @@ while isRunning:
 				mode = (mode + 1)%4
 			if event.key == pygame.K_f:
 				mode = (mode - 1)%4
+			if event.key == pygame.K_RETURN:
+				pos = [0.0, 0.0, 0.0, 0.0]
+			if event.key == pygame.K_c:
+				renderComplement = not(renderComplement)
 	keys = pygame.key.get_pressed()
 
 	if keys[pygame.K_w]:
-		pos[Modes.axis[mode][1]] += 0.01*scale
+		pos[Modes.axis[mode][1]] += 0.01*scale[mode]
 	if keys[pygame.K_s]:
-		pos[Modes.axis[mode][1]] -= 0.01*scale
+		pos[Modes.axis[mode][1]] -= 0.01*scale[mode]
 	if keys[pygame.K_d]:
-		pos[Modes.axis[mode][0]] += 0.01*scale
+		pos[Modes.axis[mode][0]] += 0.01*scale[mode]
 	if keys[pygame.K_a]:
-		pos[Modes.axis[mode][0]] -= 0.01*scale
+		pos[Modes.axis[mode][0]] -= 0.01*scale[mode]
 
 	if keys[pygame.K_UP]:
-		pos[Modes.axis[mode][3]] += 0.01*scale
+		pos[Modes.axis[mode][3]] -= 0.01*scale[Modes.complement[mode]]
 	if keys[pygame.K_DOWN]:
-		pos[Modes.axis[mode][3]] -= 0.01*scale
+		pos[Modes.axis[mode][3]] += 0.01*scale[Modes.complement[mode]]
 	if keys[pygame.K_RIGHT]:
-		pos[Modes.axis[mode][2]] += 0.01*scale
+		pos[Modes.axis[mode][2]] -= 0.01*scale[Modes.complement[mode]]
 	if keys[pygame.K_LEFT]:
-		pos[Modes.axis[mode][2]] -= 0.01*scale
+		pos[Modes.axis[mode][2]] += 0.01*scale[Modes.complement[mode]]
 
 	if keys[pygame.K_e]:
-		scale -= 0.1*scale
+		if keys[pygame.K_LSHIFT] and renderComplement:
+			scale[Modes.complement[mode]] -= 0.1*scale[Modes.complement[mode]]
+		else:
+			scale[mode] -= 0.1*scale[mode]
 	if keys[pygame.K_q]:
-		scale += 0.1*scale
+		if keys[pygame.K_LSHIFT] and renderComplement:
+			scale[Modes.complement[mode]] += 0.1*scale[Modes.complement[mode]]
+		else:
+			scale[mode] += 0.1*scale[mode]
 
-	draw(pos, scale, mode)
+	draw(pos, scale, mode, renderComplement)
 
 print(pos, scale)
