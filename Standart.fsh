@@ -29,8 +29,8 @@ vec2 complexSquare( vec2 complex ) {
 
 
 
-struct mbResult Mandelbrot( vec4 coord ) {
-	struct mbResult result;
+mbResult Mandelbrot( vec4 coord ) {
+	mbResult result;
 	result.bailoutIts = 0.0;
 	result.isInside = false;
 
@@ -129,7 +129,7 @@ void main() {
 	//vec2 z = ((quadCoord - vec2(0.5, 0.5))*u_scale - u_pos.zw);
 	vec2 z = u_pos.zw;*/
 
-	struct mbResult result = Mandelbrot( coord + u_pos );
+	mbResult result = Mandelbrot( coord + u_pos );
 	float fac = pow(result.bailoutIts, 0.5);
 	color = vec4(getHue(1.0-fac)*fac, 1.0);
 	//color = vec4(c, 0.0, 1.0);

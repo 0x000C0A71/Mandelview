@@ -146,6 +146,7 @@ def draw(pos, scale, mode, renderComplement):
 pos = [0.0, 0.0, 0.0, 0.0]
 scale = [3.0, 3.0, 3.0, 3.0]
 mode = 0
+speed = 0.1
 renderComplement = False
 
 # keep running
@@ -166,33 +167,33 @@ while isRunning:
 	keys = pygame.key.get_pressed()
 
 	if keys[pygame.K_w]:
-		pos[Modes.axis[mode][1]] += 0.01*scale[mode]
+		pos[Modes.axis[mode][1]] += 0.01*speed*scale[mode]
 	if keys[pygame.K_s]:
-		pos[Modes.axis[mode][1]] -= 0.01*scale[mode]
+		pos[Modes.axis[mode][1]] -= 0.01*speed*scale[mode]
 	if keys[pygame.K_d]:
-		pos[Modes.axis[mode][0]] += 0.01*scale[mode]
+		pos[Modes.axis[mode][0]] += 0.01*speed*scale[mode]
 	if keys[pygame.K_a]:
-		pos[Modes.axis[mode][0]] -= 0.01*scale[mode]
+		pos[Modes.axis[mode][0]] -= 0.01*speed*scale[mode]
 
 	if keys[pygame.K_UP]:
-		pos[Modes.axis[mode][3]] -= 0.01*scale[Modes.complement[mode]]
+		pos[Modes.axis[mode][3]] -= 0.01*speed*scale[Modes.complement[mode]]
 	if keys[pygame.K_DOWN]:
-		pos[Modes.axis[mode][3]] += 0.01*scale[Modes.complement[mode]]
+		pos[Modes.axis[mode][3]] += 0.01*speed*scale[Modes.complement[mode]]
 	if keys[pygame.K_RIGHT]:
-		pos[Modes.axis[mode][2]] -= 0.01*scale[Modes.complement[mode]]
+		pos[Modes.axis[mode][2]] -= 0.01*speed*scale[Modes.complement[mode]]
 	if keys[pygame.K_LEFT]:
-		pos[Modes.axis[mode][2]] += 0.01*scale[Modes.complement[mode]]
+		pos[Modes.axis[mode][2]] += 0.01*speed*scale[Modes.complement[mode]]
 
 	if keys[pygame.K_e]:
 		if keys[pygame.K_LSHIFT] and renderComplement:
-			scale[Modes.complement[mode]] -= 0.1*scale[Modes.complement[mode]]
+			scale[Modes.complement[mode]] -= 0.1*speed*scale[Modes.complement[mode]]
 		else:
-			scale[mode] -= 0.1*scale[mode]
+			scale[mode] -= 0.1*speed*scale[mode]
 	if keys[pygame.K_q]:
 		if keys[pygame.K_LSHIFT] and renderComplement:
-			scale[Modes.complement[mode]] += 0.1*scale[Modes.complement[mode]]
+			scale[Modes.complement[mode]] += 0.1*speed*scale[Modes.complement[mode]]
 		else:
-			scale[mode] += 0.1*scale[mode]
+			scale[mode] += 0.1*speed*scale[mode]
 
 	draw(pos, scale, mode, renderComplement)
 
