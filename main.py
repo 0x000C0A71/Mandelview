@@ -50,11 +50,11 @@ tris = [
 
 
 vShader = GLShader.Shader()
-vShader.loadFromFile("vertex.shader")
+vShader.loadFromFile("Standart.vsh")
 vShader.shaderType = GL_VERTEX_SHADER
 
 fShader = GLShader.Shader()
-fShader.loadFromFile("fragment.shader")
+fShader.loadFromFile("Standart.fsh")
 fShader.shaderType = GL_FRAGMENT_SHADER
 
 
